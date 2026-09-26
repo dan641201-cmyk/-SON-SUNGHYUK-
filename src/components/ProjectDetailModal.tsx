@@ -119,12 +119,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   const maxAllowedSlots = getMaxEpisodeSlots(project);
 
   const handleOpenEditSlot = () => {
-    if (isAuthorized()) {
-      setEditingSlot(activeVideo);
-    } else {
-      setAuthAction(() => () => setEditingSlot(activeVideo));
-      setIsAuthOpen(true);
-    }
+    setAuthAction(() => () => setEditingSlot(activeVideo));
+    setIsAuthOpen(true);
   };
 
   const handleOpenAddSlot = () => {
@@ -143,12 +139,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       setEditingSlot(newSlot);
     };
 
-    if (isAuthorized()) {
-      doAdd();
-    } else {
-      setAuthAction(() => doAdd);
-      setIsAuthOpen(true);
-    }
+    setAuthAction(() => doAdd);
+    setIsAuthOpen(true);
   };
 
   const isLiveCommerce = project.id === 'project-live-commerce' || project.category === 'live';

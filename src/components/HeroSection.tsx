@@ -3,6 +3,7 @@ import { ArrowDown, Play, Settings, ArrowUpRight, Check, X, Youtube, Film, Maxim
 import { heroReelImg } from '../data/initialProjects';
 import { VideoPlayer } from './VideoPlayer';
 import { portfolioStorage, ShowreelConfig } from '../services/portfolioStorage';
+import { PasswordAuthModal } from './PasswordAuthModal';
 
 interface HeroSectionProps {
   onExploreWork: () => void;
@@ -15,6 +16,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 }) => {
   const [isShowreelOpen, setIsShowreelOpen] = useState(false);
   const [isEditShowreelOpen, setIsEditShowreelOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [showreel, setShowreel] = useState<ShowreelConfig>(() => portfolioStorage.getShowreel());
 
   // Edit form state
@@ -24,6 +26,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   const handleOpenEdit = () => {
+    setIsAuthOpen(true);
+  };
+
+  const proceedToEdit = () => {
     setEditUrl(showreel.videoUrl);
     setEditTitle(showreel.title);
     setEditType(showreel.videoType);
@@ -109,21 +115,27 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* Right Column: Hero Visual Frame / Cinematic Production Stage */}
-        <div className="lg:col-span-5 relative">
-          <div className="relative rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-950 shadow-2xl group">
-            {/* Top-Right Quick Action: Video Settings Overlay */}
-            <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleOpenEdit}
-                title="하이라이트 쇼릴 영상 변경"
-                className="px-2.5 py-1.5 text-xs text-neutral-300 hover:text-white bg-black/75 hover:bg-neutral-900 backdrop-blur-md rounded-lg border border-white/15 transition-all flex items-center gap-1.5 shadow-xl cursor-pointer"
-              >
-                <Settings className="w-3.5 h-3.5 text-amber-400" />
-                <span>영상 변경</span>
-              </button>
+        <div className="lg:col-span-5 relative flex flex-col justify-center">
+          {/* Top Control Bar above Video: Label & Edit Button */}
+          <div className="flex items-center justify-between gap-2 mb-2.5 px-0.5">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <span className="text-[11px] font-mono-num uppercase tracking-wider text-neutral-400">
+                HIGHLIGHT SHOWREEL
+              </span>
             </div>
+            <button
+              type="button"
+              onClick={handleOpenEdit}
+              title="하이라이트 쇼릴 영상 변경"
+              className="px-2.5 py-1 text-xs text-neutral-300 hover:text-white bg-neutral-900/90 hover:bg-neutral-850 backdrop-blur-md rounded-lg border border-neutral-800 hover:border-amber-400/70 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+            >
+              <Settings className="w-3.5 h-3.5 text-amber-400" />
+              <span>영상 변경</span>
+            </button>
+          </div>
 
+          <div className="relative rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-950 shadow-2xl group">
             {/* Main Page Video Player */}
             <div className="w-full aspect-video bg-black relative">
               <VideoPlayer
@@ -342,6 +354,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </form>
           </div>
         </div>
+      )}
+
+      {/* Password Auth Modal */}
+      {isAuthOpen && (
+        <PasswordAuthModal
+          isOpen={isAuthOpen}
+          title="메인 영상 변경 권한 인증"
+          description="메인 화면 쇼릴 영상 및 링크를 변경하려면 비밀번호(3798)를 입력해주세요."
+          onSuccess={() => {
+            setIsAuthOpen(false);
+            proceedToEdit();
+          }}
+          onClose={() => setIsAuthOpen(false)}
+        />
       )}
     </section>
   );

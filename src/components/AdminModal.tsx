@@ -27,14 +27,16 @@ interface AdminModalProps {
   projects: Project[];
   onClose: () => void;
   onProjectsUpdated: () => void;
+  initialAuthenticated?: boolean;
 }
 
 export const AdminModal: React.FC<AdminModalProps> = ({
   projects,
   onClose,
   onProjectsUpdated,
+  initialAuthenticated = false,
 }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => isAuthorized());
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(initialAuthenticated);
   const [pinInput, setPinInput] = useState<string>('');
   const [pinError, setPinError] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'projects' | 'inquiries'>('projects');

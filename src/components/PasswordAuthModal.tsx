@@ -15,7 +15,7 @@ export const PasswordAuthModal: React.FC<PasswordAuthModalProps> = ({
   onSuccess,
   onClose,
   title = '관리자 및 수정 권한 인증',
-  description = '수정 및 관리자 접근을 위해 비밀번호를 입력해주세요.',
+  description = '수정 및 관리자 접근을 위해 비밀번호(3798)를 입력해주세요.',
 }) => {
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');

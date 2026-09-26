@@ -20,7 +20,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   className,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(autoPlay);
-  const [isMuted, setIsMuted] = useState<boolean>(autoPlay);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.85);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
@@ -143,37 +143,14 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       {type === 'youtube' && (
         <div className="w-full h-full relative">
           {hasStarted ? (
-            <>
-              <iframe
-                key={`${youtubeId}-${isMuted ? 'muted' : 'sound'}`}
-                src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${youtubeId}&rel=0&modestbranding=1&playsinline=1`}
-                title={title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="w-full h-full border-0"
-              />
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsMuted(!isMuted);
-                }}
-                className="absolute bottom-3 right-3 z-20 px-2.5 py-1.5 rounded-lg bg-black/80 hover:bg-black text-white border border-white/20 backdrop-blur-md transition-all cursor-pointer shadow-xl flex items-center gap-1.5 text-xs group/mute"
-                title={isMuted ? '소리 켜기' : '소리 끄기'}
-              >
-                {isMuted ? (
-                  <>
-                    <VolumeX className="w-3.5 h-3.5 text-neutral-300 group-hover/mute:text-amber-400" />
-                    <span className="text-[11px] font-medium text-neutral-200">소리 켜기</span>
-                  </>
-                ) : (
-                  <>
-                    <Volume2 className="w-3.5 h-3.5 text-amber-400" />
-                    <span className="text-[11px] font-medium text-amber-400">소리 끄기</span>
-                  </>
-                )}
-              </button>
-            </>
+            <iframe
+              key={`${youtubeId}-${isMuted ? 'muted' : 'sound'}`}
+              src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${youtubeId}&rel=0&modestbranding=1&playsinline=1`}
+              title={title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="w-full h-full border-0"
+            />
           ) : (
             <div
               onClick={() => setHasStarted(true)}
@@ -214,37 +191,14 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       {type === 'vimeo' && (
         <div className="w-full h-full relative">
           {hasStarted ? (
-            <>
-              <iframe
-                key={`${vimeoId}-${isMuted ? 'muted' : 'sound'}`}
-                src={`https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=${isMuted ? 1 : 0}&loop=1&playsinline=1&title=0&byline=0&portrait=0`}
-                title={title}
-                allow="autoplay; fullscreen; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full border-0"
-              />
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsMuted(!isMuted);
-                }}
-                className="absolute bottom-3 right-3 z-20 px-2.5 py-1.5 rounded-lg bg-black/80 hover:bg-black text-white border border-white/20 backdrop-blur-md transition-all cursor-pointer shadow-xl flex items-center gap-1.5 text-xs group/mute"
-                title={isMuted ? '소리 켜기' : '소리 끄기'}
-              >
-                {isMuted ? (
-                  <>
-                    <VolumeX className="w-3.5 h-3.5 text-neutral-300 group-hover/mute:text-amber-400" />
-                    <span className="text-[11px] font-medium text-neutral-200">소리 켜기</span>
-                  </>
-                ) : (
-                  <>
-                    <Volume2 className="w-3.5 h-3.5 text-amber-400" />
-                    <span className="text-[11px] font-medium text-amber-400">소리 끄기</span>
-                  </>
-                )}
-              </button>
-            </>
+            <iframe
+              key={`${vimeoId}-${isMuted ? 'muted' : 'sound'}`}
+              src={`https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=${isMuted ? 1 : 0}&loop=1&playsinline=1&title=0&byline=0&portrait=0`}
+              title={title}
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full border-0"
+            />
           ) : (
             <div
               onClick={() => setHasStarted(true)}

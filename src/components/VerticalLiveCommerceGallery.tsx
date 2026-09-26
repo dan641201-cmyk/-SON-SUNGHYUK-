@@ -33,11 +33,7 @@ export const VerticalLiveCommerceGallery: React.FC<VerticalLiveCommerceGalleryPr
 
   const handleOpenEdit = (slotNumber?: number) => {
     setActiveEditSlot(slotNumber || 1);
-    if (isAuthorized()) {
-      setIsEditModalOpen(true);
-    } else {
-      setIsAuthModalOpen(true);
-    }
+    setIsAuthModalOpen(true);
   };
 
   const handleSavePhotos = (newPhotos: VerticalPhotoItem[]) => {
@@ -194,7 +190,7 @@ export const VerticalLiveCommerceGallery: React.FC<VerticalLiveCommerceGalleryPr
         <PasswordAuthModal
           isOpen={isAuthModalOpen}
           title="라이브 화면 수정 권한 인증"
-          description="9:16 세로형 라이브 화면을 수정하려면 비밀번호를 입력해주세요."
+          description="9:16 세로형 라이브 화면을 수정하려면 비밀번호(3798)를 입력해주세요."
           onSuccess={() => setIsEditModalOpen(true)}
           onClose={() => setIsAuthModalOpen(false)}
         />

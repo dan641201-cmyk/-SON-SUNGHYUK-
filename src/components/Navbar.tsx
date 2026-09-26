@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Settings, HardDrive } from 'lucide-react';
+import { Menu, X, Settings } from 'lucide-react';
 
 interface NavbarProps {
   onOpenAdmin: () => void;
   onOpenResume: () => void;
-  onOpenDrive: () => void;
+  onOpenDrive?: () => void;
   activeSection: string;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   onOpenAdmin,
   onOpenResume,
-  onOpenDrive,
   activeSection,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -111,14 +110,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Zone 3: 1-2 primary actions */}
         <div className="flex items-center gap-3">
           <button
-            onClick={onOpenDrive}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-300 border border-neutral-700 hover:border-amber-400 hover:text-white rounded-lg transition-colors whitespace-nowrap cursor-pointer"
-            title="Google Drive 미디어 & 애셋 관리"
-          >
-            <HardDrive className="w-3.5 h-3.5 text-amber-400" />
-            <span>Google Drive</span>
-          </button>
-          <button
             onClick={onOpenResume}
             className="hidden sm:inline-flex items-center px-3.5 py-1.5 text-xs font-medium text-neutral-300 border border-neutral-700 rounded-lg hover:border-neutral-500 hover:text-white transition-colors whitespace-nowrap cursor-pointer"
           >
@@ -182,16 +173,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </nav>
           <div className="flex flex-col gap-2 pt-4 border-t border-neutral-800">
-            <button
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                onOpenDrive();
-              }}
-              className="w-full py-2.5 text-xs text-center font-medium text-neutral-200 border border-neutral-700 rounded-lg hover:bg-neutral-800 flex items-center justify-center gap-2"
-            >
-              <HardDrive className="w-3.5 h-3.5 text-amber-400" />
-              <span>Google Drive 미디어 & 애셋 관리</span>
-            </button>
             <button
               onClick={() => {
                 setIsMobileMenuOpen(false);
