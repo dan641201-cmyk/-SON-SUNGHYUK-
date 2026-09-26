@@ -269,7 +269,6 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ onClose }) => {
         <PasswordAuthModal
           isOpen={isAuthOpen}
           title="이력서 수정 권한 인증"
-          description="이력서 내용을 수정하려면 비밀번호(3798)를 입력해주세요."
           onSuccess={() => setIsEditOpen(true)}
           onClose={() => setIsAuthOpen(false)}
         />

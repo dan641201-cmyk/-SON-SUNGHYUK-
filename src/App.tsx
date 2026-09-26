@@ -115,7 +115,6 @@ export default function App() {
         <PasswordAuthModal
           isOpen={isAdminAuthModalOpen}
           title="관리자 권한 인증"
-          description="관리자 대시보드(프로젝트 추가·수정·삭제) 접근을 위해 비밀번호(3798)를 입력해주세요."
           onSuccess={() => setIsAdminOpen(true)}
           onClose={() => setIsAdminAuthModalOpen(false)}
         />

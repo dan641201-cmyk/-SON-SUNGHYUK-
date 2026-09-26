@@ -361,7 +361,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <PasswordAuthModal
           isOpen={isAuthOpen}
           title="메인 영상 변경 권한 인증"
-          description="메인 화면 쇼릴 영상 및 링크를 변경하려면 비밀번호(3798)를 입력해주세요."
           onSuccess={() => {
             setIsAuthOpen(false);
             proceedToEdit();

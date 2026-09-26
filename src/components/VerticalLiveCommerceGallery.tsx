@@ -190,7 +190,6 @@ export const VerticalLiveCommerceGallery: React.FC<VerticalLiveCommerceGalleryPr
         <PasswordAuthModal
           isOpen={isAuthModalOpen}
           title="라이브 화면 수정 권한 인증"
-          description="9:16 세로형 라이브 화면을 수정하려면 비밀번호(3798)를 입력해주세요."
           onSuccess={() => setIsEditModalOpen(true)}
           onClose={() => setIsAuthModalOpen(false)}
         />

@@ -734,7 +734,6 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         <PasswordAuthModal
           isOpen={isAuthOpen}
           title="프로젝트 영상 설정 권한 인증"
-          description="영상 추가, 순서 변경, 슬롯 정보 수정을 위해 비밀번호(3798)를 입력해주세요."
           onSuccess={() => {
             setIsAuthOpen(false);
             if (authAction) {

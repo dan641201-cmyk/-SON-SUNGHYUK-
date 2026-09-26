@@ -271,14 +271,11 @@ export const AdminModal: React.FC<AdminModalProps> = ({
           <div className="w-12 h-12 rounded-full bg-neutral-900 border border-neutral-800 text-amber-400 flex items-center justify-center mx-auto mb-4">
             <Lock className="w-5 h-5" />
           </div>
-          <h3 className="text-base font-bold text-white mb-1">포트폴리오 관리자 인증</h3>
-          <p className="text-xs text-neutral-400 mb-6">
-            프로젝트 추가/수정 권한 확인을 위해 비밀번호를 입력해주세요.
-          </p>
+          <h3 className="text-base font-bold text-white mb-6">포트폴리오 관리자 인증</h3>
           <form onSubmit={handlePinSubmit} className="space-y-3">
             <input
               type="password"
-              placeholder="PIN 번호 입력"
+              placeholder="비밀번호 입력"
               value={pinInput}
               onChange={(e) => setPinInput(e.target.value)}
               className="w-full px-3 py-2 text-center text-sm bg-neutral-950 border border-neutral-800 rounded-lg text-white focus:outline-none focus:border-amber-400"

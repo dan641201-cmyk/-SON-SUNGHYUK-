@@ -262,7 +262,6 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenResume }) => {
               ? 'PRODUCTION SKILLS 수정 권한 인증'
               : 'CAREER 수정 권한 인증'
           }
-          description="항목을 수정하려면 비밀번호를 입력해주세요."
           onSuccess={handleAuthSuccess}
           onClose={() => setPendingAction(null)}
         />

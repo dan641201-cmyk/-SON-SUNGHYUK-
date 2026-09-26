@@ -15,7 +15,7 @@ export const PasswordAuthModal: React.FC<PasswordAuthModalProps> = ({
   onSuccess,
   onClose,
   title = '관리자 및 수정 권한 인증',
-  description = '수정 및 관리자 접근을 위해 비밀번호(3798)를 입력해주세요.',
+  description = '',
 }) => {
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -70,12 +70,14 @@ export const PasswordAuthModal: React.FC<PasswordAuthModalProps> = ({
           <Lock className="w-6 h-6" />
         </div>
 
-        <h3 className="text-base font-bold text-white mb-1.5 font-display tracking-tight">
+        <h3 className={`text-base font-bold text-white font-display tracking-tight ${description ? 'mb-1.5' : 'mb-6'}`}>
           {title}
         </h3>
-        <p className="text-xs text-neutral-400 font-light mb-6 leading-relaxed">
-          {description}
-        </p>
+        {description && (
+          <p className="text-xs text-neutral-400 font-light mb-6 leading-relaxed">
+            {description}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative">
@@ -84,7 +86,7 @@ export const PasswordAuthModal: React.FC<PasswordAuthModalProps> = ({
               inputMode="numeric"
               maxLength={8}
               autoFocus
-              placeholder="비밀번호 4자리 입력"
+              placeholder="비밀번호 입력"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
