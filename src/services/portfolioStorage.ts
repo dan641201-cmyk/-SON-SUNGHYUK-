@@ -9,10 +9,26 @@ import {
 const STORAGE_KEY = 'song_seong_hyeok_portfolio_projects_v1';
 const INQUIRIES_KEY = 'song_seong_hyeok_portfolio_inquiries_v1';
 const SHOWREEL_KEY = 'song_seong_hyeok_portfolio_showreel_v1';
+const HERO_INTRO_KEY = 'song_seong_hyeok_portfolio_hero_intro_v1';
 const ABOUT_ME_KEY = 'song_seong_hyeok_portfolio_about_v1';
 const SKILLS_KEY = 'song_seong_hyeok_portfolio_skills_v1';
 const CAREER_KEY = 'song_seong_hyeok_portfolio_career_v1';
 const RESUME_KEY = 'song_seong_hyeok_portfolio_resume_v1';
+
+export interface HeroIntroConfig {
+  headlineLine1: string;
+  headlineLine2: string;
+  subhead: string;
+  description: string;
+}
+
+export const DEFAULT_HERO_INTRO: HeroIntroConfig = {
+  headlineLine1: '사람과 브랜드를 이해하고,',
+  headlineLine2: '그 가치를 콘텐츠에 담습니다.',
+  subhead: '콘텐츠의 시작부터 완성까지 모든 장면을 설계합니다.',
+  description:
+    '콘텐츠를 기획하고 촬영부터 편집, 라이브 송출까지 직접 수행하며, 농협은행과 그립컴퍼니 등에서 재직하며, 기업 브랜드의 메시지와 다양한 사람들의 이야기를 콘텐츠로 만들어 왔습니다.',
+};
 
 export interface ShowreelConfig {
   title: string;
@@ -78,6 +94,25 @@ export const DEFAULT_ABOUT_ME: AboutMeData = {
 };
 
 export const portfolioStorage = {
+  getHeroIntro: (): HeroIntroConfig => {
+    try {
+      const data = localStorage.getItem(HERO_INTRO_KEY);
+      if (!data) return DEFAULT_HERO_INTRO;
+      return { ...DEFAULT_HERO_INTRO, ...JSON.parse(data) };
+    } catch {
+      return DEFAULT_HERO_INTRO;
+    }
+  },
+
+  saveHeroIntro: (config: HeroIntroConfig): HeroIntroConfig => {
+    try {
+      localStorage.setItem(HERO_INTRO_KEY, JSON.stringify(config));
+    } catch (e) {
+      console.error(e);
+    }
+    return config;
+  },
+
   getShowreel: (): ShowreelConfig => {
     try {
       const data = localStorage.getItem(SHOWREEL_KEY);

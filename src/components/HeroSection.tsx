@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { ArrowDown, Play, Settings, ArrowUpRight, Check, X, Youtube, Film, Maximize2 } from 'lucide-react';
 import { heroReelImg } from '../data/initialProjects';
 import { VideoPlayer } from './VideoPlayer';
-import { portfolioStorage, ShowreelConfig } from '../services/portfolioStorage';
+import { portfolioStorage, ShowreelConfig, HeroIntroConfig } from '../services/portfolioStorage';
 import { PasswordAuthModal } from './PasswordAuthModal';
+import { EditHeroIntroModal } from './EditHeroIntroModal';
 
 interface HeroSectionProps {
   onExploreWork: () => void;
@@ -19,6 +20,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [showreel, setShowreel] = useState<ShowreelConfig>(() => portfolioStorage.getShowreel());
 
+  // Hero Intro Text State
+  const [heroIntro, setHeroIntro] = useState<HeroIntroConfig>(() => portfolioStorage.getHeroIntro());
+  const [isIntroEditOpen, setIsIntroEditOpen] = useState(false);
+  const [isIntroAuthOpen, setIsIntroAuthOpen] = useState(false);
+  const [toastNotice, setToastNotice] = useState('');
+
   // Edit form state
   const [editUrl, setEditUrl] = useState(showreel.videoUrl);
   const [editTitle, setEditTitle] = useState(showreel.title);
@@ -27,6 +34,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   const handleOpenEdit = () => {
     setIsAuthOpen(true);
+  };
+
+  const handleOpenEditIntro = () => {
+    setIsIntroAuthOpen(true);
+  };
+
+  const handleSaveIntro = (updated: HeroIntroConfig) => {
+    setHeroIntro(updated);
+    portfolioStorage.saveHeroIntro(updated);
+    setToastNotice('메인 인트로 소개 문구가 성공적으로 저장되었습니다.');
+    setTimeout(() => setToastNotice(''), 3500);
   };
 
   const proceedToEdit = () => {
@@ -80,27 +98,60 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center my-auto">
         {/* Left Column: Bold Editorial Typography & Pitch */}
         <div className="lg:col-span-7 flex flex-col justify-center">
-          {/* Kicker label */}
-          <div className="flex items-center gap-2.5 text-xs font-mono-num uppercase tracking-wider text-amber-400 mb-4">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span>SON SUNG HYUK · VIDEO PRODUCER & CONTENT PD</span>
+          {/* Toast Notice */}
+          {toastNotice && (
+            <div className="mb-4 p-3 bg-amber-400/10 border border-amber-400/30 rounded-xl flex items-center justify-between gap-2 text-xs text-amber-300 animate-in fade-in">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-amber-400" />
+                <span>{toastNotice}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setToastNotice('')}
+                className="text-neutral-400 hover:text-white text-[11px]"
+              >
+                닫기
+              </button>
+            </div>
+          )}
+
+          {/* Top Control Bar for Intro: Kicker label & Edit Button */}
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2.5 text-xs font-mono-num uppercase tracking-wider text-amber-400">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              <span>SON SUNG HYUK · VIDEO PRODUCER & CONTENT PD</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleOpenEditIntro}
+              title="메인 소개 문구 수정"
+              className="px-2.5 py-1 text-xs text-neutral-300 hover:text-white bg-neutral-900/90 hover:bg-neutral-850 backdrop-blur-md rounded-lg border border-neutral-800 hover:border-amber-400/70 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0"
+            >
+              <Settings className="w-3.5 h-3.5 text-amber-400" />
+              <span>문구 수정</span>
+            </button>
           </div>
 
           {/* Main Statement */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold font-display tracking-tight text-white leading-[1.15] mb-6 text-balance">
-            사람과 브랜드를 이해하고, <br />
+            {heroIntro.headlineLine1} <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-200 to-neutral-500">
-              그 가치를 콘텐츠에 담습니다.
+              {heroIntro.headlineLine2}
             </span>
           </h1>
 
           {/* Sub copies from prompt */}
-          <p className="text-base sm:text-lg text-neutral-300 font-light leading-relaxed mb-4 max-w-2xl text-balance">
-            콘텐츠의 시작부터 완성까지 모든 장면을 설계합니다.
-          </p>
-          <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-8 max-w-xl">
-            콘텐츠를 기획하고 촬영부터 편집, 라이브 송출까지 직접 수행하며, 농협은행과 그립컴퍼니 등에서 재직하며, 기업 브랜드의 메시지와 다양한 사람들의 이야기를 콘텐츠로 만들어 왔습니다.
-          </p>
+          {heroIntro.subhead && (
+            <p className="text-base sm:text-lg text-neutral-300 font-light leading-relaxed mb-4 max-w-2xl text-balance">
+              {heroIntro.subhead}
+            </p>
+          )}
+          {heroIntro.description && (
+            <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-8 max-w-xl">
+              {heroIntro.description}
+            </p>
+          )}
 
           {/* CTAs */}
           <div className="flex flex-wrap items-center gap-4">
@@ -356,7 +407,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
       )}
 
-      {/* Password Auth Modal */}
+      {/* Password Auth Modal for Showreel */}
       {isAuthOpen && (
         <PasswordAuthModal
           isOpen={isAuthOpen}
@@ -366,6 +417,28 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             proceedToEdit();
           }}
           onClose={() => setIsAuthOpen(false)}
+        />
+      )}
+
+      {/* Password Auth Modal for Intro Text */}
+      {isIntroAuthOpen && (
+        <PasswordAuthModal
+          isOpen={isIntroAuthOpen}
+          title="소개 문구 수정 권한 인증"
+          onSuccess={() => {
+            setIsIntroAuthOpen(false);
+            setIsIntroEditOpen(true);
+          }}
+          onClose={() => setIsIntroAuthOpen(false)}
+        />
+      )}
+
+      {/* Edit Hero Intro Modal */}
+      {isIntroEditOpen && (
+        <EditHeroIntroModal
+          initialData={heroIntro}
+          onClose={() => setIsIntroEditOpen(false)}
+          onSave={handleSaveIntro}
         />
       )}
     </section>
