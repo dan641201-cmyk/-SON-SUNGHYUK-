@@ -17,11 +17,15 @@ import {
   Smartphone,
   Radio,
   Plus,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { Project, ProjectVideoItem, VerticalPhotoItem } from '../types/portfolio';
 import { VideoPlayer } from './VideoPlayer';
 import { ensureTenVideoSlots, getMaxEpisodeSlots } from '../utils/projectVideos';
 import { EditVideoSlotModal } from './EditVideoSlotModal';
+import { ReorderVideosModal } from './ReorderVideosModal';
 import { VerticalLiveCommerceGallery } from './VerticalLiveCommerceGallery';
 import { PasswordAuthModal } from './PasswordAuthModal';
 import { DEFAULT_LIVE_COMMERCE_VERTICAL_PHOTOS } from '../data/initialProjects';
@@ -112,6 +116,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   );
   const [activeSlotIndex, setActiveSlotIndex] = useState<number>(0);
   const [editingSlot, setEditingSlot] = useState<ProjectVideoItem | null>(null);
+  const [isReorderOpen, setIsReorderOpen] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [authAction, setAuthAction] = useState<(() => void) | null>(null);
   const [toastMessage, setToastMessage] = useState<string>('');
@@ -127,12 +132,12 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     const doAdd = () => {
       const nextSlotNum = videoSlots.length + 1;
       const newSlot: ProjectVideoItem = {
-        id: `slot-${project.id}-${nextSlotNum}`,
+        id: `slot-${project.id}-${Date.now()}-${nextSlotNum}`,
         slotNumber: nextSlotNum,
-        title: `${project.title} — 영상 슬롯 ${String(nextSlotNum).padStart(2, '0')}`,
+        title: `${project.title} — 추가 영상 ${String(nextSlotNum).padStart(2, '0')}`,
         subtitle: '프로젝트 추가 영상 클립',
         videoType: 'youtube',
-        videoUrl: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
+        videoUrl: '',
         duration: '03:00',
         tag: `EP.${String(nextSlotNum).padStart(2, '0')}`,
       };
@@ -140,6 +145,66 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     };
 
     setAuthAction(() => doAdd);
+    setIsAuthOpen(true);
+  };
+
+  const handleOpenReorder = () => {
+    setAuthAction(() => () => setIsReorderOpen(true));
+    setIsAuthOpen(true);
+  };
+
+  const handleSaveReorder = (reordered: ProjectVideoItem[]) => {
+    setVideoSlots(reordered);
+    setActiveSlotIndex(0);
+
+    const updatedProject: Project = {
+      ...project,
+      episodesCount: `${reordered.length}편`,
+      videos: reordered,
+      videoUrl: reordered[0]?.videoUrl || project.videoUrl,
+      videoType: reordered[0]?.videoType || project.videoType,
+      thumbnail: reordered[0]?.thumbnail || project.thumbnail,
+    };
+
+    if (onUpdateProject) {
+      onUpdateProject(updatedProject);
+    }
+
+    setToastMessage(`영상 ${reordered.length}편의 순서가 성공적으로 변경 및 저장되었습니다.`);
+    setTimeout(() => setToastMessage(''), 3500);
+  };
+
+  const handleQuickMoveSlot = (index: number, direction: 'prev' | 'next') => {
+    const targetIdx = direction === 'prev' ? index - 1 : index + 1;
+    if (targetIdx < 0 || targetIdx >= videoSlots.length) return;
+
+    const doSwap = () => {
+      const next = [...videoSlots];
+      const temp = next[index];
+      next[index] = next[targetIdx];
+      next[targetIdx] = temp;
+      const reindexed = next.map((s, idx) => ({ ...s, slotNumber: idx + 1 }));
+      setVideoSlots(reindexed);
+      setActiveSlotIndex(targetIdx);
+
+      const updatedProject: Project = {
+        ...project,
+        episodesCount: `${reindexed.length}편`,
+        videos: reindexed,
+        videoUrl: reindexed[0]?.videoUrl || project.videoUrl,
+        videoType: reindexed[0]?.videoType || project.videoType,
+        thumbnail: reindexed[0]?.thumbnail || project.thumbnail,
+      };
+
+      if (onUpdateProject) {
+        onUpdateProject(updatedProject);
+      }
+
+      setToastMessage(`영상 순서가 이동되었습니다 (EP.${String(targetIdx + 1).padStart(2, '0')}).`);
+      setTimeout(() => setToastMessage(''), 3000);
+    };
+
+    setAuthAction(() => doSwap);
     setIsAuthOpen(true);
   };
 
@@ -367,7 +432,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 self-end sm:self-auto shrink-0 flex-wrap justify-end">
+                    {/* Previous/Next Video */}
                     <button
                       onClick={handlePrevSlot}
                       className="px-2.5 py-1.5 bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-lg text-neutral-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1"
@@ -384,6 +450,20 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       <span className="text-[11px]">다음</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
+
+                    {/* Reorder Video Slots */}
+                    {videoSlots.length > 1 && (
+                      <button
+                        onClick={handleOpenReorder}
+                        className="px-2.5 py-1.5 bg-neutral-900 border border-neutral-800 hover:border-amber-400/60 rounded-lg text-neutral-300 hover:text-amber-300 transition-colors cursor-pointer flex items-center gap-1.5"
+                        title="영상 목록 순서 자유롭게 변경 및 관리"
+                      >
+                        <ArrowUpDown className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="text-[11px]">순서 변경</span>
+                      </button>
+                    )}
+
+                    {/* Edit Video */}
                     <button
                       onClick={handleOpenEditSlot}
                       className="px-2.5 py-1.5 bg-neutral-900 border border-neutral-800 hover:border-amber-400/60 rounded-lg text-neutral-300 hover:text-amber-300 transition-colors cursor-pointer flex items-center gap-1.5"
@@ -392,21 +472,21 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                       <Settings className="w-3.5 h-3.5" />
                       <span className="text-[11px]">영상 수정</span>
                     </button>
-                    {videoSlots.length < maxAllowedSlots && (
-                      <button
-                        onClick={handleOpenAddSlot}
-                        className="px-2.5 py-1.5 bg-amber-400/10 border border-amber-400/40 hover:bg-amber-400/20 hover:border-amber-400 rounded-lg text-amber-300 hover:text-amber-200 transition-colors cursor-pointer flex items-center gap-1.5"
-                        title="새 영상 1개 더 추가"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span className="text-[11px]">영상 추가</span>
-                      </button>
-                    )}
+
+                    {/* Add Video Button (always available) */}
+                    <button
+                      onClick={handleOpenAddSlot}
+                      className="px-3 py-1.5 bg-amber-400/15 border border-amber-400/40 hover:bg-amber-400/25 hover:border-amber-400 rounded-lg text-amber-300 hover:text-amber-200 transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+                      title="새 영상 추가"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span className="text-[11px] font-semibold">영상 추가</span>
+                    </button>
                   </div>
                 </div>
 
-                {/* Quick Episode Switcher Tabs if multiple videos */}
-                {(videoSlots.length > 1 || videoSlots.length < maxAllowedSlots) && (
+                {/* Quick Episode Switcher Tabs */}
+                {videoSlots.length > 1 && (
                   <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1">
                     {videoSlots.map((slot, idx) => (
                       <button
@@ -424,16 +504,6 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                         <span className="truncate max-w-[180px] sm:max-w-xs">{slot.title}</span>
                       </button>
                     ))}
-                    {videoSlots.length < maxAllowedSlots && (
-                      <button
-                        onClick={handleOpenAddSlot}
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 border border-dashed border-amber-400/40 text-amber-400 hover:bg-amber-400/10 hover:border-amber-400 shrink-0"
-                        title="새 영상 1개 더 추가"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>영상 추가</span>
-                      </button>
-                    )}
                   </div>
                 )}
               </div>
@@ -663,8 +733,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       {isAuthOpen && (
         <PasswordAuthModal
           isOpen={isAuthOpen}
-          title="영상 슬롯 수정 권한 인증"
-          description="영상 링크 및 슬롯 정보를 수정하거나 추가하려면 비밀번호를 입력해주세요."
+          title="프로젝트 영상 설정 권한 인증"
+          description="영상 추가, 순서 변경, 슬롯 정보 수정을 위해 비밀번호(3798)를 입력해주세요."
           onSuccess={() => {
             setIsAuthOpen(false);
             if (authAction) {
@@ -687,6 +757,17 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
           slot={editingSlot}
           onSave={handleSaveSlot}
           onClose={() => setEditingSlot(null)}
+        />
+      )}
+
+      {/* Reorder Videos Modal */}
+      {isReorderOpen && (
+        <ReorderVideosModal
+          videos={videoSlots}
+          projectTitle={project.title}
+          onSave={handleSaveReorder}
+          onAddNewVideo={handleOpenAddSlot}
+          onClose={() => setIsReorderOpen(false)}
         />
       )}
     </div>

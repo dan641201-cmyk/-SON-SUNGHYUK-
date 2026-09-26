@@ -162,38 +162,9 @@ const getEpisodeTemplates = (project: Project): { title: string; subtitle: strin
  * Filters out deleted episodes (e.g. ep 7..10 for shorts, ep 6..10 for vet medical & promo sketch)
  */
 export const ensureTenVideoSlots = (project: Project): ProjectVideoItem[] => {
-  const maxSlots = getMaxEpisodeSlots(project);
-  const existing = (project.videos || []).filter(
-    (v) => (v.slotNumber ? v.slotNumber <= maxSlots : true)
-  ).slice(0, maxSlots);
-
-  // If project has custom videos explicitly configured within the allowed range, return them directly
-  if (existing.length > 0) {
-    const filled = [...existing];
-    if (filled.length < maxSlots) {
-      const templates = getEpisodeTemplates(project);
-      for (let i = filled.length + 1; i <= maxSlots; i++) {
-        const template = templates[i - 1] || {
-          title: `${project.title} — 영상 슬롯 ${String(i).padStart(2, '0')}`,
-          subtitle: `프로젝트 관련 영상 클립 및 에피소드 #${i}`,
-          tag: `EP.${String(i).padStart(2, '0')}`,
-          duration: '05:00',
-        };
-        const url = SAMPLE_YOUTUBE_VIDEOS[(i - 1) % SAMPLE_YOUTUBE_VIDEOS.length];
-        filled.push({
-          id: `slot-${project.id}-${i}`,
-          slotNumber: i,
-          title: template.title,
-          subtitle: template.subtitle,
-          videoType: 'youtube',
-          videoUrl: url,
-          thumbnail: getYouTubeThumbnail(url) || project.thumbnail,
-          duration: template.duration,
-          tag: template.tag,
-        });
-      }
-    }
-    return filled.map((v, idx) => ({
+  // If project has custom videos already configured/saved, return them directly
+  if (project.videos && Array.isArray(project.videos) && project.videos.length > 0) {
+    return project.videos.map((v, idx) => ({
       ...v,
       slotNumber: idx + 1,
       videoType: v.videoType || 'youtube',
@@ -202,6 +173,7 @@ export const ensureTenVideoSlots = (project: Project): ProjectVideoItem[] => {
     }));
   }
 
+  const maxSlots = getMaxEpisodeSlots(project);
   const templates = getEpisodeTemplates(project);
   const slots: ProjectVideoItem[] = [];
   const targetCount = Math.min(maxSlots, templates.length);
