@@ -49,7 +49,7 @@ export default function App() {
   const [isSkillsEditOpen, setIsSkillsEditOpen] = useState(false);
   const [isCareerEditOpen, setIsCareerEditOpen] = useState(false);
 
-  // Authentication Modal State
+  // Standalone auth modal (used for Footer Admin link)
   const [authConfig, setAuthConfig] = useState<{
     isOpen: boolean;
     title: string;
@@ -58,7 +58,13 @@ export default function App() {
 
   const [activeSection, setActiveSection] = useState<string>('home');
 
+  // Since the user is already authenticated with 3798 to open the gear menu,
+  // clicking options directly opens the corresponding modal seamlessly.
   const handleOpenAdmin = () => {
+    setIsAdminOpen(true);
+  };
+
+  const handleOpenFooterAdmin = () => {
     setAuthConfig({
       isOpen: true,
       title: '관리자 권한 인증',
@@ -70,69 +76,27 @@ export default function App() {
   };
 
   const handleOpenEditHeroIntro = () => {
-    setAuthConfig({
-      isOpen: true,
-      title: '메인 소개 문구 수정 권한 인증',
-      onSuccess: () => {
-        setAuthConfig(null);
-        setIsIntroEditOpen(true);
-      },
-    });
+    setIsIntroEditOpen(true);
   };
 
   const handleOpenEditShowreel = () => {
-    setAuthConfig({
-      isOpen: true,
-      title: '메인 영상 변경 권한 인증',
-      onSuccess: () => {
-        setAuthConfig(null);
-        setIsShowreelEditOpen(true);
-      },
-    });
+    setIsShowreelEditOpen(true);
   };
 
   const handleOpenEditAboutMe = () => {
-    setAuthConfig({
-      isOpen: true,
-      title: 'ABOUT ME 수정 권한 인증',
-      onSuccess: () => {
-        setAuthConfig(null);
-        setIsAboutEditOpen(true);
-      },
-    });
+    setIsAboutEditOpen(true);
   };
 
   const handleOpenEditSkills = () => {
-    setAuthConfig({
-      isOpen: true,
-      title: 'PRODUCTION SKILLS 수정 권한 인증',
-      onSuccess: () => {
-        setAuthConfig(null);
-        setIsSkillsEditOpen(true);
-      },
-    });
+    setIsSkillsEditOpen(true);
   };
 
   const handleOpenEditCareer = () => {
-    setAuthConfig({
-      isOpen: true,
-      title: 'CAREER 수정 권한 인증',
-      onSuccess: () => {
-        setAuthConfig(null);
-        setIsCareerEditOpen(true);
-      },
-    });
+    setIsCareerEditOpen(true);
   };
 
   const handleOpenEditContact = () => {
-    setAuthConfig({
-      isOpen: true,
-      title: '문의 및 연락처 수정 권한 인증',
-      onSuccess: () => {
-        setAuthConfig(null);
-        setIsContactEditOpen(true);
-      },
-    });
+    setIsContactEditOpen(true);
   };
 
   const handleSaveHeroIntro = (updated: HeroIntroConfig) => {
@@ -242,7 +206,7 @@ export default function App() {
           onSelectProject={(project) => setSelectedProject(project)}
         />
 
-        {/* 3. About & Skills Section (Pristine, synchronized with state) */}
+        {/* 3. About & Skills Section */}
         <AboutSection
           aboutData={aboutData}
           skillsData={skillsData}
@@ -259,11 +223,11 @@ export default function App() {
 
       {/* Footer */}
       <Footer
-        onOpenAdmin={handleOpenAdmin}
+        onOpenAdmin={handleOpenFooterAdmin}
         onOpenResume={() => setIsResumeOpen(true)}
       />
 
-      {/* Dynamic Password Auth Modal */}
+      {/* Fallback Auth Modal for footer links */}
       {authConfig && authConfig.isOpen && (
         <PasswordAuthModal
           isOpen={authConfig.isOpen}
