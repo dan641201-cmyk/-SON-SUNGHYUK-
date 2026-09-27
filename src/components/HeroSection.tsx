@@ -1,96 +1,34 @@
 import React, { useState } from 'react';
-import { ArrowDown, Play, Settings, ArrowUpRight, Check, X, Youtube, Film, Maximize2 } from 'lucide-react';
+import { ArrowDown, ArrowUpRight } from 'lucide-react';
 import { heroReelImg } from '../data/initialProjects';
 import { VideoPlayer } from './VideoPlayer';
 import { portfolioStorage, ShowreelConfig, HeroIntroConfig } from '../services/portfolioStorage';
-import { PasswordAuthModal } from './PasswordAuthModal';
-import { EditHeroIntroModal } from './EditHeroIntroModal';
 
 interface HeroSectionProps {
   onExploreWork: () => void;
   onContactClick: () => void;
+  heroIntro?: HeroIntroConfig;
+  showreel?: ShowreelConfig;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onExploreWork,
-  onContactClick,
+  heroIntro: propHeroIntro,
+  showreel: propShowreel,
 }) => {
+  const [localShowreel] = useState<ShowreelConfig>(() => portfolioStorage.getShowreel());
+  const [localHeroIntro] = useState<HeroIntroConfig>(() => portfolioStorage.getHeroIntro());
   const [isShowreelOpen, setIsShowreelOpen] = useState(false);
-  const [isEditShowreelOpen, setIsEditShowreelOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [showreel, setShowreel] = useState<ShowreelConfig>(() => portfolioStorage.getShowreel());
 
-  // Hero Intro Text State
-  const [heroIntro, setHeroIntro] = useState<HeroIntroConfig>(() => portfolioStorage.getHeroIntro());
-  const [isIntroEditOpen, setIsIntroEditOpen] = useState(false);
-  const [isIntroAuthOpen, setIsIntroAuthOpen] = useState(false);
-  const [toastNotice, setToastNotice] = useState('');
-
-  // Edit form state
-  const [editUrl, setEditUrl] = useState(showreel.videoUrl);
-  const [editTitle, setEditTitle] = useState(showreel.title);
-  const [editType, setEditType] = useState<'youtube' | 'vimeo' | 'mp4'>(showreel.videoType);
-  const [savedSuccess, setSavedSuccess] = useState(false);
-
-  const handleOpenEdit = () => {
-    setIsAuthOpen(true);
-  };
-
-  const handleOpenEditIntro = () => {
-    setIsIntroAuthOpen(true);
-  };
-
-  const handleSaveIntro = (updated: HeroIntroConfig) => {
-    setHeroIntro(updated);
-    portfolioStorage.saveHeroIntro(updated);
-    setToastNotice('메인 인트로 소개 문구가 성공적으로 저장되었습니다.');
-    setTimeout(() => setToastNotice(''), 3500);
-  };
-
-  const proceedToEdit = () => {
-    setEditUrl(showreel.videoUrl);
-    setEditTitle(showreel.title);
-    setEditType(showreel.videoType);
-    setSavedSuccess(false);
-    setIsEditShowreelOpen(true);
-  };
-
-  const handleSaveShowreel = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editUrl.trim()) return;
-
-    // Auto-detect type if obvious
-    let detectedType = editType;
-    if (editUrl.includes('youtube.com') || editUrl.includes('youtu.be')) {
-      detectedType = 'youtube';
-    } else if (editUrl.includes('vimeo.com')) {
-      detectedType = 'vimeo';
-    } else if (editUrl.endsWith('.mp4')) {
-      detectedType = 'mp4';
-    }
-
-    const updated: ShowreelConfig = {
-      ...showreel,
-      title: editTitle.trim() || '2026 SON SUNG HYUK SHOWREEL',
-      videoUrl: editUrl.trim(),
-      videoType: detectedType,
-    };
-
-    portfolioStorage.saveShowreel(updated);
-    setShowreel(updated);
-    setSavedSuccess(true);
-    setTimeout(() => {
-      setIsEditShowreelOpen(false);
-      setSavedSuccess(false);
-    }, 600);
-  };
+  const showreel = propShowreel || localShowreel;
+  const heroIntro = propHeroIntro || localHeroIntro;
 
   return (
     <section
       id="home"
       className="relative min-h-[92vh] flex flex-col justify-between pt-28 pb-12 px-6 md:px-10 max-w-7xl mx-auto overflow-hidden"
     >
-      {/* Subtle top ambient glow */}
+      {/* Subtle Ambient Background Glows */}
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/3 -right-32 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -98,39 +36,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center my-auto">
         {/* Left Column: Bold Editorial Typography & Pitch */}
         <div className="lg:col-span-7 flex flex-col justify-center">
-          {/* Toast Notice */}
-          {toastNotice && (
-            <div className="mb-4 p-3 bg-amber-400/10 border border-amber-400/30 rounded-xl flex items-center justify-between gap-2 text-xs text-amber-300 animate-in fade-in">
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-amber-400" />
-                <span>{toastNotice}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setToastNotice('')}
-                className="text-neutral-400 hover:text-white text-[11px]"
-              >
-                닫기
-              </button>
-            </div>
-          )}
-
-          {/* Top Control Bar for Intro: Kicker label & Edit Button */}
-          <div className="flex items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-2.5 text-xs font-mono-num uppercase tracking-wider text-amber-400">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-              <span>SON SUNG HYUK · VIDEO PRODUCER & CONTENT PD</span>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleOpenEditIntro}
-              title="메인 소개 문구 수정"
-              className="px-2.5 py-1 text-xs text-neutral-300 hover:text-white bg-neutral-900/90 hover:bg-neutral-850 backdrop-blur-md rounded-lg border border-neutral-800 hover:border-amber-400/70 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0"
-            >
-              <Settings className="w-3.5 h-3.5 text-amber-400" />
-              <span>문구 수정</span>
-            </button>
+          {/* Kicker label */}
+          <div className="flex items-center gap-2.5 text-xs font-mono-num uppercase tracking-wider text-amber-400 mb-4">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span>SON SUNG HYUK · VIDEO PRODUCER & CONTENT PD</span>
           </div>
 
           {/* Main Statement */}
@@ -141,7 +50,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </span>
           </h1>
 
-          {/* Sub copies from prompt */}
+          {/* Sub copies */}
           {heroIntro.subhead && (
             <p className="text-base sm:text-lg text-neutral-300 font-light leading-relaxed mb-4 max-w-2xl text-balance">
               {heroIntro.subhead}
@@ -167,23 +76,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
         {/* Right Column: Hero Visual Frame / Cinematic Production Stage */}
         <div className="lg:col-span-5 relative flex flex-col justify-center">
-          {/* Top Control Bar above Video: Label & Edit Button */}
-          <div className="flex items-center justify-between gap-2 mb-2.5 px-0.5">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              <span className="text-[11px] font-mono-num uppercase tracking-wider text-neutral-400">
-                HIGHLIGHT SHOWREEL
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={handleOpenEdit}
-              title="하이라이트 쇼릴 영상 변경"
-              className="px-2.5 py-1 text-xs text-neutral-300 hover:text-white bg-neutral-900/90 hover:bg-neutral-850 backdrop-blur-md rounded-lg border border-neutral-800 hover:border-amber-400/70 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
-            >
-              <Settings className="w-3.5 h-3.5 text-amber-400" />
-              <span>영상 변경</span>
-            </button>
+          {/* Top Control Bar above Video: Label */}
+          <div className="flex items-center gap-2 mb-2.5 px-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-[11px] font-mono-num uppercase tracking-wider text-neutral-400">
+              HIGHLIGHT SHOWREEL
+            </span>
           </div>
 
           <div className="relative rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-950 shadow-2xl group">
@@ -215,7 +113,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </button>
       </div>
 
-      {/* Showreel Modal */}
+      {/* Showreel Modal (if opened separately) */}
       {isShowreelOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
           <div className="relative w-full max-w-4xl bg-neutral-950 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl p-5">
@@ -228,24 +126,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   {showreel.subtitle}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    setIsShowreelOpen(false);
-                    handleOpenEdit();
-                  }}
-                  className="px-3 py-1.5 text-xs text-neutral-400 hover:text-amber-400 border border-neutral-800 rounded-lg hover:bg-neutral-900 transition-colors cursor-pointer flex items-center gap-1.5"
-                >
-                  <Settings className="w-3.5 h-3.5" />
-                  <span>영상 변경</span>
-                </button>
-                <button
-                  onClick={() => setIsShowreelOpen(false)}
-                  className="px-3 py-1.5 text-xs text-neutral-400 hover:text-white border border-neutral-800 rounded-lg hover:bg-neutral-900 transition-colors cursor-pointer"
-                >
-                  닫기 (ESC)
-                </button>
-              </div>
+              <button
+                onClick={() => setIsShowreelOpen(false)}
+                className="px-3 py-1.5 text-xs text-neutral-400 hover:text-white border border-neutral-800 rounded-lg hover:bg-neutral-900 transition-colors cursor-pointer"
+              >
+                닫기
+              </button>
             </div>
             <VideoPlayer
               type={showreel.videoType}
@@ -256,190 +142,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             />
           </div>
         </div>
-      )}
-
-      {/* Edit Showreel Modal */}
-      {isEditShowreelOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg bg-neutral-950 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-neutral-800">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-400">
-                  <Film className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">하이라이트 쇼릴 영상 설정</h3>
-                  <p className="text-[11px] text-neutral-400">메인 화면에 재생될 쇼릴 영상 링크를 변경합니다</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsEditShowreelOpen(false)}
-                className="p-1.5 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-900 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveShowreel} className="space-y-4">
-              <div>
-                <label className="block text-xs text-neutral-300 mb-1.5 font-medium">
-                  쇼릴 제목 (선택)
-                </label>
-                <input
-                  type="text"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  placeholder="2026 SON SUNG HYUK SHOWREEL"
-                  className="w-full px-3.5 py-2.5 bg-neutral-900 border border-neutral-800 rounded-lg text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs text-neutral-300 mb-1.5 font-medium">
-                  동영상 플랫폼
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditType('youtube')}
-                    className={`py-2 px-3 text-xs rounded-lg border flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                      editType === 'youtube'
-                        ? 'bg-amber-400 text-black font-semibold border-amber-400'
-                        : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:text-white'
-                    }`}
-                  >
-                    <Youtube className="w-3.5 h-3.5" />
-                    <span>YouTube</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditType('vimeo')}
-                    className={`py-2 px-3 text-xs rounded-lg border flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                      editType === 'vimeo'
-                        ? 'bg-amber-400 text-black font-semibold border-amber-400'
-                        : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:text-white'
-                    }`}
-                  >
-                    <span>Vimeo</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditType('mp4')}
-                    className={`py-2 px-3 text-xs rounded-lg border flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                      editType === 'mp4'
-                        ? 'bg-amber-400 text-black font-semibold border-amber-400'
-                        : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:text-white'
-                    }`}
-                  >
-                    <span>Direct MP4</span>
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs text-neutral-300 mb-1.5 font-medium">
-                  동영상 링크 (URL) <span className="text-amber-400">*</span>
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={editUrl}
-                  onChange={(e) => setEditUrl(e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=... 또는 https://vimeo.com/..."
-                  className="w-full px-3.5 py-2.5 bg-neutral-900 border border-neutral-800 rounded-lg text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-amber-400 font-mono"
-                />
-                <p className="text-[11px] text-neutral-500 mt-1">
-                  * 유튜브 전체 주소(watch?v=...), 단축 주소(youtu.be/...), 비메오 링크를 지원합니다.
-                </p>
-              </div>
-
-              {/* Presets shortcut */}
-              <div className="pt-2 border-t border-neutral-900">
-                <div className="text-[11px] text-neutral-400 mb-1.5">샘플 프리셋 불러오기</div>
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditUrl('https://www.youtube.com/watch?v=ScMzIvxBSi4');
-                      setEditType('youtube');
-                    }}
-                    className="px-2 py-1 bg-neutral-900 hover:bg-neutral-800 text-[11px] text-neutral-400 hover:text-neutral-200 border border-neutral-800 rounded cursor-pointer"
-                  >
-                    유튜브 샘플 (기본)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditUrl('https://vimeo.com/76979871');
-                      setEditType('vimeo');
-                    }}
-                    className="px-2 py-1 bg-neutral-900 hover:bg-neutral-800 text-[11px] text-neutral-400 hover:text-neutral-200 border border-neutral-800 rounded cursor-pointer"
-                  >
-                    비메오 샘플 (Vimeo)
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-neutral-800">
-                <button
-                  type="button"
-                  onClick={() => setIsEditShowreelOpen(false)}
-                  className="px-4 py-2 text-xs text-neutral-400 hover:text-white border border-neutral-800 rounded-lg hover:bg-neutral-900 transition-colors cursor-pointer"
-                >
-                  취소
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-black font-semibold text-xs rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
-                >
-                  {savedSuccess ? (
-                    <>
-                      <Check className="w-3.5 h-3.5" />
-                      <span>저장되었습니다!</span>
-                    </>
-                  ) : (
-                    <span>변경사항 저장하기</span>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Password Auth Modal for Showreel */}
-      {isAuthOpen && (
-        <PasswordAuthModal
-          isOpen={isAuthOpen}
-          title="메인 영상 변경 권한 인증"
-          onSuccess={() => {
-            setIsAuthOpen(false);
-            proceedToEdit();
-          }}
-          onClose={() => setIsAuthOpen(false)}
-        />
-      )}
-
-      {/* Password Auth Modal for Intro Text */}
-      {isIntroAuthOpen && (
-        <PasswordAuthModal
-          isOpen={isIntroAuthOpen}
-          title="소개 문구 수정 권한 인증"
-          onSuccess={() => {
-            setIsIntroAuthOpen(false);
-            setIsIntroEditOpen(true);
-          }}
-          onClose={() => setIsIntroAuthOpen(false)}
-        />
-      )}
-
-      {/* Edit Hero Intro Modal */}
-      {isIntroEditOpen && (
-        <EditHeroIntroModal
-          initialData={heroIntro}
-          onClose={() => setIsIntroEditOpen(false)}
-          onSave={handleSaveIntro}
-        />
       )}
     </section>
   );

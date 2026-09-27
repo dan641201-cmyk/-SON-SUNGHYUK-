@@ -14,6 +14,26 @@ const ABOUT_ME_KEY = 'song_seong_hyeok_portfolio_about_v1';
 const SKILLS_KEY = 'song_seong_hyeok_portfolio_skills_v1';
 const CAREER_KEY = 'song_seong_hyeok_portfolio_career_v1';
 const RESUME_KEY = 'song_seong_hyeok_portfolio_resume_v1';
+const CONTACT_INFO_KEY = 'song_seong_hyeok_portfolio_contact_v1';
+
+export interface ContactInfoConfig {
+  badge: string;
+  headline: string;
+  subhead: string;
+  description: string;
+  email: string;
+  phone: string;
+}
+
+export const DEFAULT_CONTACT_INFO: ContactInfoConfig = {
+  badge: 'START A PROJECT',
+  headline: "LET'S WORK TOGETHER",
+  subhead: '새로운 콘텐츠를 함께 만들어보세요.',
+  description:
+    '기업 사내 영상, 브랜디드 다큐멘터리, 유튜브 채널 론칭과 성장, 라이브 송출까지 다양한 프로젝트의 목적을 이해하고, 그에 맞는 콘텐츠 제작 방식을 설계하고 구현합니다.',
+  email: 'ssh641201@naver.com',
+  phone: '010-6412-0176',
+};
 
 export interface HeroIntroConfig {
   headlineLine1: string;
@@ -126,6 +146,25 @@ export const portfolioStorage = {
   saveShowreel: (config: ShowreelConfig): ShowreelConfig => {
     try {
       localStorage.setItem(SHOWREEL_KEY, JSON.stringify(config));
+    } catch (e) {
+      console.error(e);
+    }
+    return config;
+  },
+
+  getContactInfo: (): ContactInfoConfig => {
+    try {
+      const data = localStorage.getItem(CONTACT_INFO_KEY);
+      if (!data) return DEFAULT_CONTACT_INFO;
+      return { ...DEFAULT_CONTACT_INFO, ...JSON.parse(data) };
+    } catch {
+      return DEFAULT_CONTACT_INFO;
+    }
+  },
+
+  saveContactInfo: (config: ContactInfoConfig): ContactInfoConfig => {
+    try {
+      localStorage.setItem(CONTACT_INFO_KEY, JSON.stringify(config));
     } catch (e) {
       console.error(e);
     }

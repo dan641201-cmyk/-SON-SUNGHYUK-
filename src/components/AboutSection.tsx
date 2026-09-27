@@ -1,101 +1,44 @@
-import React, { useState } from 'react';
-import { CheckCircle, Award, Compass, Video, Cpu, FileText, Edit2, Sparkles, Briefcase, Check } from 'lucide-react';
+import React from 'react';
+import { CheckCircle, FileText } from 'lucide-react';
 import { AboutMeData, SkillItem, CareerItem } from '../types/portfolio';
 import { portfolioStorage } from '../services/portfolioStorage';
-import { EditAboutMeModal } from './EditAboutMeModal';
-import { EditProductionSkillsModal } from './EditProductionSkillsModal';
-import { EditCareerModal } from './EditCareerModal';
-import { PasswordAuthModal } from './PasswordAuthModal';
-import { isAuthorized } from '../utils/auth';
 
 interface AboutSectionProps {
   onOpenResume: () => void;
+  aboutData?: AboutMeData;
+  skillsData?: SkillItem[];
+  careersData?: CareerItem[];
 }
 
-export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenResume }) => {
-  const [aboutData, setAboutData] = useState<AboutMeData>(() => portfolioStorage.getAboutMe());
-  const [skillsData, setSkillsData] = useState<SkillItem[]>(() => portfolioStorage.getProductionSkills());
-  const [careersData, setCareersData] = useState<CareerItem[]>(() => portfolioStorage.getCareerHistory());
+export const AboutSection: React.FC<AboutSectionProps> = ({
+  onOpenResume,
+  aboutData: propAboutData,
+  skillsData: propSkillsData,
+  careersData: propCareersData,
+}) => {
+  const localAboutData = portfolioStorage.getAboutMe();
+  const localSkillsData = portfolioStorage.getProductionSkills();
+  const localCareersData = portfolioStorage.getCareerHistory();
 
-  const [isEditAboutOpen, setIsEditAboutOpen] = useState<boolean>(false);
-  const [isEditSkillsOpen, setIsEditSkillsOpen] = useState<boolean>(false);
-  const [isEditCareerOpen, setIsEditCareerOpen] = useState<boolean>(false);
-  const [pendingAction, setPendingAction] = useState<null | 'about' | 'skills' | 'career'>(null);
-  const [toastMessage, setToastMessage] = useState<string>('');
-
-  const executeProtectedAction = (action: 'about' | 'skills' | 'career') => {
-    if (isAuthorized()) {
-      if (action === 'about') setIsEditAboutOpen(true);
-      if (action === 'skills') setIsEditSkillsOpen(true);
-      if (action === 'career') setIsEditCareerOpen(true);
-    } else {
-      setPendingAction(action);
-    }
-  };
-
-  const handleAuthSuccess = () => {
-    if (pendingAction === 'about') setIsEditAboutOpen(true);
-    if (pendingAction === 'skills') setIsEditSkillsOpen(true);
-    if (pendingAction === 'career') setIsEditCareerOpen(true);
-    setPendingAction(null);
-  };
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 3500);
-  };
-
-  const handleSaveAbout = (updated: AboutMeData) => {
-    portfolioStorage.saveAboutMe(updated);
-    setAboutData(updated);
-    showToast('ABOUT ME 소개 내용이 성공적으로 수정되었습니다.');
-  };
-
-  const handleSaveSkills = (updated: SkillItem[]) => {
-    portfolioStorage.saveProductionSkills(updated);
-    setSkillsData(updated);
-    showToast('PRODUCTION SKILLS 제작 역량이 성공적으로 수정되었습니다.');
-  };
-
-  const handleSaveCareers = (updated: CareerItem[]) => {
-    portfolioStorage.saveCareerHistory(updated);
-    setCareersData(updated);
-    showToast('CAREER 경력 이력이 성공적으로 수정되었습니다.');
-  };
+  const aboutData = propAboutData || localAboutData;
+  const skillsData = propSkillsData || localSkillsData;
+  const careersData = propCareersData || localCareersData;
 
   return (
     <section id="about" className="py-24 px-6 md:px-10 max-w-7xl mx-auto border-t border-neutral-900 relative">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-[90] bg-neutral-900 border border-amber-400 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-3">
-          <Check className="w-4 h-4 text-amber-400" />
-          <span>{toastMessage}</span>
+      {/* Header: ABOUT ME (Clean presentation without edit button) */}
+      <div className="mb-16">
+        <div className="text-xs font-mono-num uppercase tracking-wider text-amber-400 mb-2">
+          {aboutData.badge || 'PROFILE & EXPERTISE'}
         </div>
-      )}
-
-      {/* Header: ABOUT ME with Edit Button */}
-      <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <div className="text-xs font-mono-num uppercase tracking-wider text-amber-400 mb-2">
-            {aboutData.badge || 'PROFILE & EXPERTISE'}
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-display text-white tracking-tight">
-            {aboutData.headline || 'ABOUT ME'}
-          </h2>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold font-display text-white tracking-tight">
+          {aboutData.headline || 'ABOUT ME'}
+        </h2>
+        {aboutData.subheadline && (
           <p className="text-base sm:text-xl text-neutral-300 font-light mt-4 max-w-3xl leading-relaxed text-balance">
             {aboutData.subheadline}
           </p>
-        </div>
-
-        {/* ABOUT ME Edit Button */}
-        <button
-          onClick={() => executeProtectedAction('about')}
-          className="self-start md:self-auto px-4 py-2 bg-neutral-900/90 border border-neutral-800 hover:border-amber-400 text-xs font-medium text-neutral-300 hover:text-white rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-sm shrink-0 hover:bg-neutral-850"
-          title="ABOUT ME 소개글 수정"
-        >
-          <Edit2 className="w-3.5 h-3.5 text-amber-400" />
-          <span>ABOUT ME 수정</span>
-        </button>
+        )}
       </div>
 
       {/* Intro Story */}
@@ -128,19 +71,10 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenResume }) => {
             </h3>
           </div>
 
-          <div className="flex items-center gap-3 self-start sm:self-auto">
-            <span className="hidden sm:inline text-xs font-mono-num text-neutral-500">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-mono-num text-neutral-500">
               {skillsData.length} SKILLS ACTIVE
             </span>
-            {/* PRODUCTION SKILLS Edit Button */}
-            <button
-              onClick={() => executeProtectedAction('skills')}
-              className="px-4 py-2 bg-neutral-900/90 border border-neutral-800 hover:border-amber-400 text-xs font-medium text-neutral-300 hover:text-white rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-sm shrink-0 hover:bg-neutral-850"
-              title="PRODUCTION SKILLS 제작 역량 항목 수정"
-            >
-              <Edit2 className="w-3.5 h-3.5 text-amber-400" />
-              <span>PRODUCTION SKILLS 수정</span>
-            </button>
           </div>
         </div>
 
@@ -193,19 +127,10 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenResume }) => {
             </h3>
           </div>
 
-          <div className="flex items-center gap-3 self-start sm:self-auto">
-            <span className="hidden sm:inline text-xs font-mono-num text-neutral-500">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-mono-num text-neutral-500">
               {careersData.length} CAREER TRACKS
             </span>
-            {/* CAREER Edit Button */}
-            <button
-              onClick={() => executeProtectedAction('career')}
-              className="px-4 py-2 bg-neutral-900/90 border border-neutral-800 hover:border-amber-400 text-xs font-medium text-neutral-300 hover:text-white rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-sm shrink-0 hover:bg-neutral-850"
-              title="CAREER 경력 이력 목록 수정"
-            >
-              <Edit2 className="w-3.5 h-3.5 text-amber-400" />
-              <span>CAREER 수정</span>
-            </button>
           </div>
         </div>
 
@@ -250,46 +175,6 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenResume }) => {
           ))}
         </div>
       </div>
-
-      {/* Editing Modals */}
-      {pendingAction && (
-        <PasswordAuthModal
-          isOpen={Boolean(pendingAction)}
-          title={
-            pendingAction === 'about'
-              ? 'ABOUT ME 수정 권한 인증'
-              : pendingAction === 'skills'
-              ? 'PRODUCTION SKILLS 수정 권한 인증'
-              : 'CAREER 수정 권한 인증'
-          }
-          onSuccess={handleAuthSuccess}
-          onClose={() => setPendingAction(null)}
-        />
-      )}
-
-      {isEditAboutOpen && (
-        <EditAboutMeModal
-          initialData={aboutData}
-          onClose={() => setIsEditAboutOpen(false)}
-          onSave={handleSaveAbout}
-        />
-      )}
-
-      {isEditSkillsOpen && (
-        <EditProductionSkillsModal
-          initialSkills={skillsData}
-          onClose={() => setIsEditSkillsOpen(false)}
-          onSave={handleSaveSkills}
-        />
-      )}
-
-      {isEditCareerOpen && (
-        <EditCareerModal
-          initialCareers={careersData}
-          onClose={() => setIsEditCareerOpen(false)}
-          onSave={handleSaveCareers}
-        />
-      )}
     </section>
   );
 };
